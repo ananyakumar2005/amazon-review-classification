@@ -34,9 +34,6 @@ source sentiment_env/bin/activate
 
 - Run the Flask application:
 
-``` 
-python final_app.py
+``` python final_app.py```
 
-Open your web browser and go to:
-
-http://localhost:5000
+Open your web browser and go to: http://localhost:5000
