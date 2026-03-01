@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Review Sentiment Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+        }
+        .example-review {
+            cursor: pointer;
+            border-left: 3px solid #667eea;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .example-review:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .sentiment-positive { background: linear-gradient(45deg, #28a745, #20c997); color: white; }
+        .sentiment-neutral { background: linear-gradient(45deg, #ffc107, #fd7e14); color: white; }
+        .sentiment-negative { background: linear-gradient(45deg, #dc3545, #e83e8c); color: white; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5">
+                    <h1 class="text-white display-4 fw-bold">
+                        <i class="fas fa-robot me-3"></i>Sentiment Analysis
+                    </h1>
+                    <p class="text-white lead">Analyze Amazon Musical Instrument Reviews</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">
+                            <i class="fas fa-comment-dots me-2"></i>Review Sentiment Analyzer
+                        </h3>
+                        
+                        <div class="mb-4">
+                            <label for="reviewText" class="form-label fw-bold">Enter your review:</label>
+                            <textarea class="form-control" id="reviewText" rows="5" 
+                                      placeholder="Type your Amazon musical instrument review here..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <small class="text-muted">Try these examples:</small>
+                            <div class="example-review" onclick="document.getElementById('reviewText').value = this.textContent">
+                                "These strings are amazing! Perfect sound quality and great value for money. Highly recommended!"
+                            </div>
+                            <div class="example-review" onclick="document.getElementById('reviewText').value = this.textContent">
+                                "The product is okay but nothing special. Does the job but feels a bit cheap."
+                            </div>
+                            <div class="example-review" onclick="document.getElementById('reviewText').value = this.textContent">
+                                "Terrible quality! Broke after just one week. Complete waste of money. Do not buy!"
+                            </div>
+                        </div>
+
+                        <button id="analyzeBtn" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-search me-2"></i>Analyze Sentiment
+                        </button>
+
+                        <div id="loading" class="text-center" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Analyzing sentiment...</p>
+                        </div>
+                        
+                        <div id="results" style="display: none;">
+                            <div class="alert" id="sentimentAlert">
+                                <h4 class="alert-heading">
+                                    <i class="fas fa-tag me-2"></i>Sentiment: 
+                                    <span id="predictionResult"></span>
+                                </h4>
+                                <p class="mb-2">Confidence: <strong id="confidenceResult"></strong></p>
+                            </div>
+                            
+                            <h5 class="mt-4">Probability Distribution:</h5>
+                            <div id="probabilityBars"></div>
+                        </div>
+
+                        <div id="noResults" class="text-center text-muted py-4">
+                            <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                            <p>Enter a review above and click "Analyze Sentiment" to see results</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a href="/test" class="text-white">🧪 Test Predictions</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('analyzeBtn').addEventListener('click', function() {
+            const reviewText = document.getElementById('reviewText').value.trim();
+            
+            if (!reviewText) {
+                alert('Please enter a review text');
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const noResults = document.getElementById('noResults');
+            
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            noResults.style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('review_text', reviewText);
+            
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    results.style.display = 'block';
+                    noResults.style.display = 'none';
+                    
+                    // Update sentiment result
+                    const sentimentAlert = document.getElementById('sentimentAlert');
+                    sentimentAlert.className = `alert sentiment-${data.prediction.toLowerCase()}`;
+                    document.getElementById('predictionResult').textContent = data.prediction;
+                    document.getElementById('confidenceResult').textContent = data.confidence;
+                    
+                    // Update probability bars
+                    const probabilityBars = document.getElementById('probabilityBars');
+                    probabilityBars.innerHTML = '';
+                    
+                    for (const [sentiment, probability] of Object.entries(data.probabilities)) {
+                        const percentage = (probability * 100).toFixed(1);
+                        const barColor = sentiment === 'Positive' ? 'success' : 
+                                        sentiment === 'Neutral' ? 'warning' : 'danger';
+                        
+                        probabilityBars.innerHTML += `
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="me-2" style="width: 80px;">${sentiment}:</span>
+                                <div class="progress flex-grow-1">
+                                    <div class="progress-bar bg-${barColor}" 
+                                         role="progressbar" 
+                                         style="width: ${percentage}%"
+                                         aria-valuenow="${percentage}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        ${percentage}%
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    alert('Error: ' + data.error);
+                    noResults.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                alert('Error: ' + error);
+                noResults.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
