@@ -29,9 +29,10 @@ class SentimentPredictor:
         """Load the trained model and components"""
         try:
             print("📂 Loading model files...")
-            self.model = joblib.load('best_sentiment_model.pkl')
-            self.vectorizer = joblib.load('tfidf_vectorizer.pkl')
-            self.label_encoder = joblib.load('label_encoder.pkl')
+            _base = os.path.dirname(os.path.abspath(__file__))
+            self.model = joblib.load(os.path.join(_base, 'model', 'best_sentiment_model.pkl'))
+            self.vectorizer = joblib.load(os.path.join(_base, 'model', 'tfidf_vectorizer.pkl'))
+            self.label_encoder = joblib.load(os.path.join(_base, 'model', 'label_encoder.pkl'))
             print("✅ Model loaded successfully!")
             print(f"📊 Model type: {type(self.model).__name__}")
             print(f"🎯 Classes: {self.label_encoder.classes_}")
