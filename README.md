@@ -46,7 +46,24 @@ Training data is sourced from the [Amazon Musical Instrument Reviews](https://ww
 
 ---
 
-## 5. Tech Stack
+## 5. Model
+
+Several classifiers were evaluated during training. **Logistic Regression** was selected as the final model for its strong performance, fast inference, and interpretability.
+
+### Classification Report (Test set — 6,767 samples)
+
+| Class | Precision | Recall | F1-Score | Support |
+|---|---|---|---|---|
+| Negative (0) | 0.93 | 1.00 | 0.96 | 2,225 |
+| Neutral (1) | 0.93 | 0.98 | 0.96 | 2,277 |
+| Positive (2) | 1.00 | 0.88 | 0.93 | 2,265 |
+| **Accuracy** | | | **0.95** | **6,767** |
+| Macro avg | 0.95 | 0.95 | 0.95 | 6,767 |
+| Weighted avg | 0.95 | 0.95 | 0.95 | 6,767 |
+
+---
+
+## 6. Tech Stack
 
 | Layer | Libraries |
 |---|---|
@@ -59,7 +76,7 @@ Training data is sourced from the [Amazon Musical Instrument Reviews](https://ww
 
 ---
 
-## 6. Run Locally
+## 7. Run Locally
 
 **Prerequisites:** Python 3.7+, pip
 
@@ -103,7 +120,7 @@ Training data is sourced from the [Amazon Musical Instrument Reviews](https://ww
 
 ---
 
-## 7. Project Structure
+## 8. Project Structure
 
 ```
 amazon-review-classification/
